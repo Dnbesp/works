@@ -1,0 +1,108 @@
+{
+
+  "response": [
+
+    {
+
+      "title": "The Grand Budapest Hotel",
+
+      "year": 2014,
+
+      "genre": "comedy"
+
+    },
+
+    {
+
+      "title": "Inception",
+
+      "year": 2010,
+
+      "genre": "thriller"
+
+    },
+
+    {
+
+      "title": "The Hangover",
+
+      "year": 2009,
+
+      "genre": "comedy"
+
+    },
+
+    {
+
+      "title": "La La Land",
+
+      "year": 2016,
+
+      "genre": "musical"
+
+    },
+
+    {
+
+      "title": "The Social Network",
+
+      "year": 2010,
+
+      "genre": "drama"
+
+    },
+
+    {
+
+      "title": "Interstellar",
+
+      "year": 2014,
+
+      "genre": "science fiction"
+
+    },
+
+    {
+
+      "title": "Django Unchained",
+
+      "year": 2012,
+
+      "genre": "western"
+
+    },
+
+    {
+
+      "title": "The Dark Knight Rises",
+
+      "year": 2012,
+
+      "genre": "action"
+
+    },
+
+    {
+
+      "title": "The Wolf of Wall Street",
+
+      "year": 2013,
+
+      "genre": "comedy"
+
+    },
+
+    {
+
+      "title": "Mad Max: Fury Road",
+
+      "year": 2015,
+
+      "genre": "action"
+
+    }
+
+  ]
+
+}
+

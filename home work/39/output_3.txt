@@ -1,0 +1,6 @@
+1. Python is an easy to learn, powerful programming language.
+3. Python’s elegant syntax and dynamic typing, together with its interpreted nature,
+2. It has efficient high-level data structures and a simple but effective approach to object-oriented programming.
+make it an ideal language for scripting and rapid application development in many areas on most platforms.
+4. The Python 3 interpreter and the extensive standard library are freely available in source or binary form for all major platforms from the Python web
+site.

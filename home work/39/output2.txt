@@ -1,0 +1,16 @@
+In
+makes
+it
+a
+general
+may
+that
+can
+decorate
+a
+function
+having
+any
+number
+of
+arguments
