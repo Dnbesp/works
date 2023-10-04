@@ -7,25 +7,33 @@ class Person:
     def __init__(self, name='xxx', money=0):
         self.name = name
         self.money = money
+        self.friends = []
         print('A new Person is born! ->', self.name)
 
     def __str__(self):
-        return self.name + str(self.money)
+        return self.name + ' ' + str(self.money)
+
+    def __repr__(self):
+        return f'Person({self.name})'
+
     def giveMoney(self, delta):
         self.money += delta
         print('Рахунок {} поповнено на суму {}, всього = {}'
               .format(self.name, delta, self.money))
 
     def know(self, person):
-        self.person = person
-        lst_person.append(self.person)
+        if person in self.friends:
+            print("Така персона вже є у сприску")
+        else:
+            self.friends.append(person)
+            person.friends.append(self)
+            print("Персона додана")
 
     def is_know(self, person):
-        self.person = person
-        if self.person in lst_person:
-            return f'{self.person} is familiar'
+        if person in self.friends:
+            return f'He is familiar'
         else:
-            return f'{self.person} is not familiar'
+            return f'He is not familiar'
 
 A = Person()
 B = Person()
@@ -56,7 +64,7 @@ for p in people:
 
 print('-' * 50)
 
-help(Person)
+# help(Person)
 
 def min_num(person):
     if person.money < 50:
@@ -68,15 +76,13 @@ for p in people:
 
 print('-' * 50)
 
-D = Person()
-lst_person = []
-D.know("Dima")
-D.know("Amir")
-D.know("Evgen")
-D.know("Kader")
-print(lst_person)
+A.know(C)
+A.know(B)
 
-print(D.is_know("Ann"))
-print(D.is_know("Dima"))
+print(A.friends)
+print(C.friends)
+
+print(A.is_know(C))
+print(A.is_know(D))
 
 
