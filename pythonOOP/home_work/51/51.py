@@ -94,7 +94,7 @@ N = BankAccount(13245, 5000, 'Nats')
 
 # print(Dm.deposit(1000))
 # print(N.deposit(500))
-# print(Dm.withdraw(3000))
+print(Dm.withdraw(3000))
 # print(Dm.withdraw(900))
 # print(N.withdraw(5600))
 # print(N.withdraw(100))

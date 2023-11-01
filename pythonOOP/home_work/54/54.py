@@ -26,7 +26,8 @@ class BankAccount:
         self.balance = Money(balance, currency)
         self.owner_name = owner_name
         self.accounts.append(self)
-        with open(f'data/account_number_{self.account_number}.txt', 'w') as file, open(f'data/account_number_{self.account_number}.txt', 'r+') as file1:
+        with open(f'data/account_number_{self.account_number}.txt', 'w') as file, \
+                open(f'data/account_number_{self.account_number}.txt', 'r+') as file1:
             text = file1.readline()
             text = "account_number balance currency owner_name" + '\n'
             file1.seek(0)
@@ -44,12 +45,19 @@ class BankAccount:
     # Зняття з рахунку
     def withdraw(self, balance_draw):
         self.balance_draw = balance_draw
-        if self.balance > 0:
-            if self.balance - self.balance_draw < 0:
+        if self.balance.amount > 0:
+            if self.balance.amount - self.balance_draw < 0:
                 return f"Помилка, у вас недостатньо коштів! Баланс = {self.balance}"
             else:
-                self.balance = self.balance - self.balance_draw
-                return f'З балансу знято {self.balance_draw}, Баланс = {self.balance}'
+                if NewBankAccount.count < self.max_count_transaction:
+                    if self.max_limit > self.balance_draw:
+                        self.balance.amount = self.balance.amount - self.balance_draw
+                        NewBankAccount.count += 1
+                        return f'З балансу знято {self.balance_draw}, Баланс = {self.balance}'
+                    else:
+                        return(f'Введена сума більше за максимальний розмір для зняття')
+                else:
+                    return(f'Перевищено максимальну кількість операцій з рахунком')
         else:
             return f"Помилка, на балансі '0'"
 
@@ -69,7 +77,6 @@ class BankAccount:
         try:
             self.obj = obj
             self.value = value
-            # self.currency = currency
             print(f'Номер рахунку отримувача = {self.account_number}, balance = {self.balance.amount}, '
                   f'currency = {self.balance.currency}')
             print(f'Номер рахунку відправника = {self.obj.account_number}, balance = {self.obj.balance.amount}, '
@@ -78,15 +85,23 @@ class BankAccount:
             if self.value < 0:
                 raise
             else:
-                if self.balance.currency == self.obj.balance.currency:
-                    if self.obj.balance.amount >= self.value:
-                        self.obj.balance.amount = self.obj.balance.amount - self.value
-                        self.balance.amount = self.balance.amount + self.value
-                        resalt = "Переказ успішний"
+                if NewBankAccount.count < self.max_count_transaction:
+                    if self.max_limit > self.value:
+                        if self.balance.currency == self.obj.balance.currency:
+                            if self.obj.balance.amount >= self.value:
+                                self.obj.balance.amount = self.obj.balance.amount - self.value
+                                self.balance.amount = self.balance.amount + self.value
+                                NewBankAccount.count += 1
+                                resalt = "Переказ успішний"
+                            else:
+                                resalt = "Значення переказу більше за баланс відправника"
+                        else:
+                            resalt = "Переказ не можливий, різні валюти"
                     else:
-                        resalt = "Значення переказу більше за баланс відправника"
+                        return(f'Введена сума більше за максимальний розмір для зняття')
                 else:
-                    resalt = "Переказ не можливий, різні валюти"
+                    return(f'Перевищено максимальну кількість операцій з рахунком')
+
         except RuntimeError:
             resalt = "Значення переказу повинно бути бельше за 0"
         finally:
@@ -125,28 +140,33 @@ class BankAccount:
     def transfer_funds(self, target_account, amount):
         self.target_account = target_account
         self.amount = amount
-        print(BankAccount.__exchange_rate)
-        json_text = json.loads(BankAccount.__exchange_rate)
-        print(json_text)
-        if self.amount < self.target_account.balance.amount:
-            for item in json_text:
-                if item['cc'] == self.target_account.balance.currency:
-                    send_money = round(item['rate'] * self.amount, 2)
-                    print(f'Номер рахунку відправника = {self.target_account.account_number}, '
-                          f'сума відправлення в грн.: {send_money}')
-                    self.target_account.balance.amount -= amount
-                    print(f'Номер рахунку відправника = {self.target_account.account_number}, '
-                          f'balance = {self.target_account.balance.amount} {self.target_account.balance.currency}')
-            for item in json_text:
-                if item['cc'] == self.balance.currency:
-                    take_money = round(send_money / item['rate'], 2)
-                    self.balance.amount += take_money
-                    print(f'Номер рахунку отримувача = {self.account_number}, '
-                          f'поповнено на {take_money} {self.balance.currency}')
-                    print(f'Номер рахунку отримувача = {self.account_number}, '
-                          f'balance = {self.balance.amount} {self.balance.currency}')
+        json_text = json.loads(self.__exchange_rate)
+        if NewBankAccount.count < self.max_count_transaction:
+            if self.max_limit > self.amount:
+                if self.amount < self.target_account.balance.amount:
+                    for item in json_text:
+                        if item['cc'] == self.target_account.balance.currency:
+                            send_money = round(item['rate'] * self.amount, 2)
+                            print(f'Номер рахунку відправника = {self.target_account.account_number}, '
+                                  f'сума відправлення в грн.: {send_money}')
+                            self.target_account.balance.amount -= amount
+                            print(f'Номер рахунку відправника = {self.target_account.account_number}, '
+                                  f'balance = {self.target_account.balance.amount} {self.target_account.balance.currency}')
+                    for item in json_text:
+                        if item['cc'] == self.balance.currency:
+                            take_money = round(send_money / item['rate'], 2)
+                            self.balance.amount = round(self.balance.amount + take_money, 2)
+                            print(f'Номер рахунку отримувача = {self.account_number}, '
+                                  f'поповнено на {take_money} {self.balance.currency}')
+                            print(f'Номер рахунку отримувача = {self.account_number}, '
+                                  f'balance = {self.balance.amount} {self.balance.currency}')
+                            NewBankAccount.count += 1
+                else:
+                    print("Сума відправлення більше за залишок на рахунку")
+            else:
+                print(f'Введена сума більше за максимальний розмір для зняття')
         else:
-            print("Сума відправлення більше за залишок на рахунку")
+            print(f'Перевищено максимальну кількість операцій з рахунком')
 
         with open(f'data/account_number_{self.account_number}.txt', 'r+') as file3:
             text = file3.readline()
@@ -177,12 +197,17 @@ class BankAccount:
     def account_number(self):
         return self.__account_number
 
+    @property
+    def exchange_rate(self):
+        return self.__exchange_rate
+
     # setter
     @account_number.setter
     def account_number(self, account_number):
         # print(self.__account_number)
         self.__account_number = account_number
         # print(self.__account_number)
+
 
     @classmethod
     def find_accounts_by_owner(cls, owner_name):
@@ -204,51 +229,58 @@ class BankAccount:
         os.remove(f'data/account_number_{self.account_number}.txt')
 
 
+class NewBankAccount(BankAccount):
+    count = 0
 
-Mon_1 = Money(2100, 'USD')
-Mon_2 = Money(5000, 'USD')
-Dm = BankAccount(12567, 2100, 'Dmytro', "USD")
-N = BankAccount(13245, 5000, 'Nats', "EUR")
-# Dm.delete(12567)
+    def __init__(self, account_number, balance, owner_name, currency, max_limit, max_count_transaction):
+        super().__init__(account_number, balance, owner_name, currency)
+        self.max_limit = max_limit
+        self.max_count_transaction = max_count_transaction
+
+    def prosent(self, pros):
+        self.pros = pros
+        self.balance.amount = int(self.balance.amount + (self.balance.amount * (self.pros / 100)))
+        print(f'account_number: {self.account_number}, balance: {self.balance.amount} {self.balance.currency}')
+
+        with open(f'data/account_number_{self.account_number}.txt', 'r+') as file5:
+            text = file5.readline()
+            text = "account_number balance currency owner_name" + '\n'
+            file5.seek(0)
+            file5.writelines(text)
+            file5.writelines(f'{str(self.account_number)} {str(self.balance)} {str(self.owner_name)} \n')
+
+        with open(f'data/account_number_{self.account_number}.txt', 'r+') as file6:
+            text = file6.readline()
+            text = "account_number balance currency owner_name" + '\n'
+            file6.seek(0)
+            file6.writelines(text)
+            file6.writelines(f'{str(self.account_number)} {str(self.balance)} '
+                             f'{str(self.owner_name)} \n')
 
 
-Dm.create_exchange_rate()
-Dm.transfer_funds(N, 100)
-# for item in Dm.accounts:
-#     print(item)
-# print(N.transfer(Dm, 100))
-# # print()
-# print(Dm.transfer(N, 5300))
-# print(BankAccount.get_average_balance())
-# print(BankAccount.find_accounts_by_owner('Dmytro'))
+
+new = NewBankAccount(12567, 2100, 'Dmytro', "USD", 300, 2)
+new_2 = NewBankAccount(13456, 3100, 'Ivan', "EUR", 700, 3)
+new.prosent(15)
 
 
-# print(Dm.deposit(1000))
-# print(N.deposit(500))
-# print(Dm.withdraw(3000))
-# print(Dm.withdraw(900))
-# print(N.withdraw(5600))
-# print(N.withdraw(100))
-# print(Dm.change_owner_name('Nik'))
-# print(N.change_owner_name('Ketch'))
-# Dm.display_account_info()
-# N.display_account_info()
-# print(Dm.transfer(N, -1))
+
+
+
+# трансфер у випадку різних валют
+# new.create_exchange_rate()
+# new.transfer_funds(new_2, 200)
 # print()
-# print(N.transfer(Dm, 100))
+# new.transfer_funds(new_2, 200)
 # print()
-# print(Dm.transfer(N, 5300))
-# Dm.check_account_number(12567)
-# BankAccount.check_account_number(132451)
-# print(Dm.get_account_number())
-# print(N.get_account_number())
-# Dm.set_account_number(11111)
-# N.set_account_number(22222)
-# print(Dm.get_account_number)
-# print(N.get_account_number)
-# print(Dm)
-# print(N)
-# Dm.account_number = 11111
-# N.account_number = 22222
-# print(Dm)
-# print(N)
+# new.transfer_funds(new_2, 100)
+
+# Переказ коштів між рахунками
+# print(new.transfer(new_2, 100))
+# print(new.transfer(new_2, 100))
+# print(new.transfer(new_2, 100))
+
+# Зняття з разунку
+# print(new.withdraw(100))
+# print(new.withdraw(300))
+
