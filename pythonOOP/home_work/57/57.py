@@ -98,8 +98,9 @@ class Dynamic:
     def __getattribute__(self, name):
         print(f"Call __getattribute__ with {name=} ")
         if name == 'old':
-            raise AttributeError(f"'old' protected attribute '{name}'")
-        return super().__getattribute__(name)
+            return f"'old' protected attribute '{name}'"
+        else:
+            return super().__getattribute__(name)
 
 d = Dynamic()
 print("---------------")
