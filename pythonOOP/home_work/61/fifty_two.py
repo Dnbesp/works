@@ -34,18 +34,18 @@ class BankAccount:
             file1.writelines(f'{str(self.account_number)} {str(self.balance)} {str(self.owner_name)} \n')
 
     def __str__(self):
-        return f'account_number = {self.account_number}, balance = {self.balance}'
+        return f'account_number: {self.account_number}, balance: {self.balance}, owner_name: {self.owner_name}'
 
     # Поповнення рахунку
     def deposit(self, balance):
-        self.balance += balance
+        self.balance.amount += balance
         return f'Баланс поповнено! balance = {self.balance}'
 
     # Зняття з рахунку
     def withdraw(self, balance_draw):
         self.balance_draw = balance_draw
-        if self.balance > 0:
-            if self.balance - self.balance_draw < 0:
+        if self.balance.amount > 0:
+            if self.balance.amount - self.balance_draw < 0:
                 return f"Помилка, у вас недостатньо коштів! Баланс = {self.balance}"
             else:
                 self.balance = self.balance - self.balance_draw
@@ -55,13 +55,13 @@ class BankAccount:
 
     # Зміна імені власника рахунку
     def change_owner_name(self, change_owner):
-        print(f'Власник рахунку: {self.owner_name}')
+        # print(f'Власник рахунку: {self.owner_name}')
         self.owner_name = change_owner
         return f"Нове ім'я власника рахунку: {self.owner_name}"
 
     # Вивід повної інформації про рахунок
     def display_account_info(self):
-        print(f"Номер рахунку: {self.account_number}, Баланс = {self.balance}, "
+        return (f"Номер рахунку: {self.account_number}, Баланс = {self.balance}, "
               f"Ім'я власника рахунку: {self.owner_name}")
 
     # Переказ коштів між рахунками
@@ -119,15 +119,15 @@ class BankAccount:
     def create_exchange_rate(cls):
         response = requests.get("https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json")
         json_text = response.text
-        cls.__exchange_rate = json_text
+        BankAccount.__exchange_rate = json_text
 
     # трансфер у випадку різних валют
     def transfer_funds(self, target_account, amount):
         self.target_account = target_account
         self.amount = amount
-        print(BankAccount.__exchange_rate)
+        # print(BankAccount.__exchange_rate)
         json_text = json.loads(BankAccount.__exchange_rate)
-        print(json_text)
+        # print(json_text)
         if self.amount < self.target_account.balance.amount:
             for item in json_text:
                 if item['cc'] == self.target_account.balance.currency:
@@ -140,13 +140,13 @@ class BankAccount:
             for item in json_text:
                 if item['cc'] == self.balance.currency:
                     take_money = round(send_money / item['rate'], 2)
-                    self.balance.amount += take_money
+                    self.balance.amount = round(self.balance.amount + take_money, 2)
                     print(f'Номер рахунку отримувача = {self.account_number}, '
                           f'поповнено на {take_money} {self.balance.currency}')
                     print(f'Номер рахунку отримувача = {self.account_number}, '
                           f'balance = {self.balance.amount} {self.balance.currency}')
         else:
-            print("Сума відправлення більше за залишок на рахунку")
+            return f"Сума відправлення більше за залишок на рахунку"
 
         with open(f'data/account_number_{self.account_number}.txt', 'r+') as file3:
             text = file3.readline()
@@ -162,15 +162,16 @@ class BankAccount:
             file4.writelines(text)
             file4.writelines(f'{str(self.target_account.account_number)} {str(self.target_account.balance)} '
                              f'{str(self.target_account.owner_name)} \n')
+        return f"Операція успішна"
 
 
     # перевірка рахунку на валідність
     @staticmethod
     def check_account_number(account_number):
         if len(str(account_number)) == 5:
-            print("Номер рахунку є валідним")
+            return f"Номер рахунку є валідним"
         else:
-            print("Номер рахунку не є валідним")
+            return f"Номер рахунку не є валідним"
 
     # getter
     @property
@@ -187,17 +188,25 @@ class BankAccount:
     @classmethod
     def find_accounts_by_owner(cls, owner_name):
         matching_accounts = []
+        count = 0
         for account in cls.accounts:
-            if account['owner_name'] == owner_name:
-                matching_accounts.append(account)
+            if account.owner_name == owner_name:
+                count += 1
+                # matching_accounts.append(account.account_number)
+                # matching_accounts.append(account.balance.amount)
+                # matching_accounts.append(account.balance.currency)
+                matching_accounts.append(owner_name)
+        print(count)
         return matching_accounts
 
     @classmethod
     def get_average_balance(cls):
         total_balance = 0
+        count = 0
         for account in cls.accounts:
-            total_balance += account['balance']
-        return int(total_balance / BankAccount.count)
+            count += 1
+            total_balance += account.balance.amount
+        return int(total_balance / count)
 
     def delete(self, account_number):
         self.account_number = account_number
@@ -205,15 +214,15 @@ class BankAccount:
 
 
 
-Mon_1 = Money(2100, 'USD')
-Mon_2 = Money(5000, 'USD')
+# Mon_1 = Money(2100, 'USD')
+# Mon_2 = Money(5000, 'USD')
 Dm = BankAccount(12567, 2100, 'Dmytro', "USD")
-N = BankAccount(13245, 5000, 'Nats', "EUR")
+# N = BankAccount(13245, 5000, 'Nats', "EUR")
 # Dm.delete(12567)
 
 
 Dm.create_exchange_rate()
-Dm.transfer_funds(N, 100)
+# Dm.transfer_funds(N, 100)
 # for item in Dm.accounts:
 #     print(item)
 # print(N.transfer(Dm, 100))
