@@ -1,2 +1,2 @@
 account_number balance currency owner_name
-98765 206.83 USD Tanya 
+98765 100 USD Tanya 
