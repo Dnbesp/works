@@ -8,8 +8,11 @@ import json
 class MainTest(TestCase):
 
     def setUp(self):
+        BankAccount.accounts = []
         self.obj_BankAccount_1 = BankAccount(98765, 100, "Tanya", 'USD')
         self.obj_BankAccount_2 = BankAccount(55555, 300, "Ivan", 'EUR')
+        BankAccount.create_exchange_rate()
+        print('******')
 
     def tearDown(self):
         del self.obj_BankAccount_1
@@ -46,10 +49,6 @@ class MainTest(TestCase):
     #
     # трансфер у випадку різних валют
     def test_transfer_funds(self):
-        # завантаження в __exchange_rate курси валют по відношенню до гривні
-        response = requests.get("https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json")
-        json_text = response.text
-        BankAccount.__exchange_rate = json_text
         self.assertEquals(self.obj_BankAccount_1.transfer_funds(self.obj_BankAccount_2, 100), "Операція успішна")
 
     # перевірка рахунку на валідність
@@ -57,12 +56,12 @@ class MainTest(TestCase):
         self.assertEquals(self.obj_BankAccount_1.check_account_number(98765), "Номер рахунку є валідним")
 
     # Знайти акаунт за Ім'ям
-    # def test_find_accounts_by_owner(self):
-    #     self.assertEquals(self.obj_BankAccount_1.find_accounts_by_owner("Tanya"), ["Tanya"])
+    def test_find_accounts_by_owner(self):
+        self.assertEquals(self.obj_BankAccount_1.find_accounts_by_owner("Tanya"), ["Tanya"])
 
     # Порахувати середнье значення балансу для всіх акаунтів
-    # def test_get_average_balance(self):
-    #     self.assertEquals(self.obj_BankAccount_1.get_average_balance(), 200)
+    def test_get_average_balance(self):
+        self.assertEquals(self.obj_BankAccount_1.get_average_balance(), 200)
 
 
 if __name__ == '__main__':

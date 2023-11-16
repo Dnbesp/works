@@ -221,7 +221,7 @@ Dm = BankAccount(12567, 2100, 'Dmytro', "USD")
 # Dm.delete(12567)
 
 
-Dm.create_exchange_rate()
+# Dm.create_exchange_rate()
 # Dm.transfer_funds(N, 100)
 # for item in Dm.accounts:
 #     print(item)
