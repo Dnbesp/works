@@ -21,17 +21,6 @@ class GuestHotel:
         return f"Ім'я: {self.name}, період проживання: {self.period_of_residence} (день/днів), " \
                f"ліміт грошей на проживання: {self.money}"
 
-    # def date_settlement(self):
-    #     return self.date_settlement
-    #
-    # def date_eviction(self):
-    #     return self.date_eviction
-    #
-    # def money(self):
-    #     return self.money
-    #
-    # def name(self):
-    #     return self.name
 
 class RoomInfo:
     """Кімната містить інформацію про кімнату готелю у тому числі вартість проживання за добу, її доступність у
@@ -59,21 +48,6 @@ class RoomInfo:
         return f'номер: {self.number}, кількість кімнат: {self.num_of_rooms}, ліжко: {self.bed}, дата заселення: ' \
                f'{self.date_busy_in}, дата виселення {self.date_busy_out}, ціна за добу: {self.cost} грн., ' \
                f'гість {self.guest}'
-
-    # def date_busy_in(self):
-    #     return self.date_busy_in
-    #
-    # def date_busy_out(self):
-    #     return self.date_busy_out
-    #
-    # def cost(self):
-    #     return self.cost
-    #
-    # def number(self):
-    #     return self.number
-    #
-    # def guest(self):
-    #     return self.guest
 
     # перевірка кількості вільних кімнат
     def free_rooms(self):
@@ -109,8 +83,12 @@ class RoomInfo:
         cost_dates = self.cost * (self.data_2 - self.data_1).days
         print(f'ціна за проживання з {self.data_1} по {self.data_2} в номері {self.number} складає: {cost_dates}')
 
+    # знайти в якій кімнаті гість
+    def find_guest(self):
 
-class ManagerHotel(GuestHotel, RoomInfo):
+
+
+class ManagerHotel:
 
     """Готель - містить список кімнат цого готелю, є посередником між гостем і кімнатою, тобто забезпечує для
         нього відповідну кімнату, тощо."""

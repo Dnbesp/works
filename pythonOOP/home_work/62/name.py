@@ -57,7 +57,7 @@ class Vector:
             result = new_x + new_y + new_z
             return result
 
-    # 6. Реалізувати метод __mul__, передбачити множення вектора v на a
+    # 6. Реалізувати метод __len__, передбачити множення вектора v на a
     def __len__(self):
         return abs(self.x) + abs(self.y) + abs(self.z)
 
@@ -104,11 +104,11 @@ class Vector:
         print(f'{__class__.__name__} = {messege}')
 
 
-# vec = Vector(2, 3, 4.6)
+vec = Vector(2, 3, 4.6)
 # vec_2 = Vector(5, 12, 2)
 
 #12
-# vec("is long")
+vec("is long")
 #11
 # print(bool(vec_2))
 # print(bool(vec))
