@@ -10,7 +10,7 @@ class GuestHotel:
         self.name = name
         self.date_settlement = DT.datetime.strptime(date_settlement, '%d/%m/%Y').date()
         self.date_eviction = DT.datetime.strptime(date_eviction, '%d/%m/%Y').date()
-        self.period_of_residence = self.date_eviction - self.date_settlement
+        self.period_of_residence = (self.date_eviction - self.date_settlement)
         self.period_of_residence = self.period_of_residence.days
         self.money = money
         self.info_guest = []
@@ -84,60 +84,59 @@ class RoomInfo:
         print(f'ціна за проживання з {self.data_1} по {self.data_2} в номері {self.number} складає: {cost_dates}')
 
     # знайти в якій кімнаті гість
-    def find_guest(self):
+    def find_guest(self, name_find):
+        self.name_find = name_find
+        if self.name_find == self.guest:
+            print(f'гість: {self.name_find} знаходиться в кімнаті {self.number}')
+        else:
+            print(f'гість: {self.name_find} не знаходиться в готелі')
 
 
-
-class ManagerHotel:
+class ManagerHotel(GuestHotel, RoomInfo):
 
     """Готель - містить список кімнат цого готелю, є посередником між гостем і кімнатою, тобто забезпечує для
         нього відповідну кімнату, тощо."""
 
     total_profit = 0
 
-    def __init__(self, name_user, number_user):
-        self.name_user = name_user
-        self.number_user = number_user
+    def __init__(self, number, date_busy_in, date_busy_out, cost, guest, name, date_settlement, date_eviction, money):
+        super(GuestHotel, self).__init__(number, date_busy_in, date_busy_out, cost, guest)
+        super(RoomInfo, self).__init__(name, date_settlement, date_eviction, money)
 
     def __str__(self):
-        return f"ім'я: {self.name_user}, номер бажаної кімнати: {self.number_user}"
+        return f'{self.number} {self.date_busy_in} {self.date_busy_out} {self.cost} {self.guest} {self.name}' \
+               f' {self.date_settlement} {self.date_eviction} {self.money}'
 
     # заселення в номер:
     def settlement(self):
+        # перевірка по даті виселення, кімната пуста чи ні
+        if self.date_busy_out is not None:
 
-        # перевірка чи є такий гість, а також чи є така кімната
-        if self.name_user == self.name and self.number_user == self.number:
-
-            # перевірка по даті виселення, кімната пуста чи ні
-            if self.date_busy_out is not None:
-
-                # перевірка чи більше, або рівно дата заселення гістя по відношенню до дати виселення с номера
-                if self.date_settlement >= self.date_busy_out:
-                    days_cost = self.cost * (self.date_eviction - self.date_settlement).days
-
-                    # перевірка чи достатньо грошей в гістя
-                    if self.money >= self.cost and self.money >= days_cost:
-                        self.date_busy_in = self.date_settlement
-                        self.date_busy_out = self.date_eviction
-                        self.guest = self.name_user
-                        print(f'гість {self.name} посилився у номер {self.number}')
-                        print(self.room_info)
-                        ManagerHotel.total_profit += days_cost
-                    else:
-                        raise ValueError("Не вистачає коштів у гістя для приживання в даному номері")
-            if self.date_busy_out is None:
+            # перевірка чи більше, або співпадає дата заселення гістя по відношенню до дати виселення с номера
+            if self.date_settlement >= self.date_busy_out:
                 days_cost = self.cost * (self.date_eviction - self.date_settlement).days
+
+                # перевірка чи достатньо грошей в гістя
                 if self.money >= self.cost and self.money >= days_cost:
                     self.date_busy_in = self.date_settlement
                     self.date_busy_out = self.date_eviction
-                    self.guest = self.name_user
+                    self.guest = self.name
                     print(f'гість {self.name} посилився у номер {self.number}')
                     print(self.room_info)
                     ManagerHotel.total_profit += days_cost
                 else:
                     raise ValueError("Не вистачає коштів у гістя для приживання в даному номері")
-        else:
-            raise ValueError("Даний гість відсутній в класі GuestHotel")
+        if self.date_busy_out is None:
+            days_cost = self.cost * (self.date_eviction - self.date_settlement).days
+            if self.money >= self.cost and self.money >= days_cost:
+                self.date_busy_in = self.date_settlement
+                self.date_busy_out = self.date_eviction
+                self.guest = self.name
+                print(f'гість {self.name} посилився у номер {self.number}')
+                print(self.room_info)
+                ManagerHotel.total_profit += days_cost
+            else:
+                raise ValueError("Не вистачає коштів у гістя для приживання в даному номері")
 
 
 # клас GuestHotel(вся інформація пов'язана з гостем)
@@ -147,7 +146,7 @@ obj2 = GuestHotel("Ivan", '17/11/2023', '20/11/2023', 800)
 # клас RoomInfo(вся інформація пов'язана з номером)
 room_1 = RoomInfo(101, 1, 1, "15/11/2023", '19/11/2023', 500)
 room_2 = RoomInfo(102, 2, 2, "16/11/2023", '27/11/2023', 800)
-room_3 = RoomInfo(103, 2, 3, "16/11/2023", '20/11/2023', 1000)
+room_3 = RoomInfo(103, 1, 3, "16/11/2023", '20/11/2023', 1000)
 
 # перевірка кількості вільних кімнат на зараз
 # room_1.free_rooms()
@@ -160,16 +159,19 @@ room_3 = RoomInfo(103, 2, 3, "16/11/2023", '20/11/2023', 1000)
 # room_3.data_free_rooms("21/11/2023", '25/11/2023')
 
 # вартість проживання у зазначений термін
-# room_1.cost_date("19/11/2023", '20/11/2023')
-# room_2.cost_date("17/11/2023", '20/11/2023')
-# room_3.cost_date("21/11/2023", '25/11/2023')
+room_1.cost_date("19/11/2023", '20/11/2023')
+room_2.cost_date("17/11/2023", '20/11/2023')
+room_3.cost_date("21/11/2023", '25/11/2023')
 
+# знайти в якій кімнаті гість
+# room_1.find_guest("Dmytro")
+# room_2.find_guest("Ivan")
 #
-manager_1 = ManagerHotel("Dmytro", 2)
-# manager_2 = ManagerHotel("Ivan", 1)
+# manager_1 = ManagerHotel(2, "16/11/2023", '27/11/2023', 800, None, "Dmytro", '15/11/2023', '17/11/2023', 1000)
+# manager_2 = ManagerHotel(1, "15/11/2023", '19/11/2023', 500, None, "Ivan", '17/11/2023', '20/11/2023', 800)
 
 # заселення в номер:
-manager_1.settlement()
+# manager_1.settlement()
 # manager_2.settlement()
 # room_1.free_rooms()
 # room_2.free_rooms()
