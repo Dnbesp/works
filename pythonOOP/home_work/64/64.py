@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 # Двозв'язний список                                   Беспятий Дмитро
+
+# Реалізуйте клас двозв’язного списку, в якому передбачено:
+# 1.	Додавання елемента до списку (в голову/в хвіст).
+# 2.	Видалення елемента зі списку (з голови/з хвоста).
+# 3.	Видалення елемента за значенням
+# 4.	Додавання нового елемента за індексом.
+# 5.	Прохід по всьому списку від голови до хвоста.
+# 6.	Прохід по всьому списку від хвоста до голови.
+# 7.	Повне очищення списку.
+
 class Node:
 
     def __init__(self, data):
@@ -47,9 +57,68 @@ class UserMenu:
     def del_tail(self):
         tail = self.head
         while tail.next is not None:
+            self.head.prev = tail
             tail = tail.next
-        # tail.next = None
-        # self.head.prev = None
+        tail.prev.next = None
+
+    # 3. Видалення елемента за значенням і кількістю
+    def del_cur(self, data, value):
+        current = self.head
+        count = 0
+        while current:
+            if count < value:
+                if self.head.data == data:
+                    self.head = current.next
+                    count += 1
+                else:
+                    if current.data == data:
+                        current.prev.next = current.next
+                        current = current.next
+                        count += 1
+            if current:
+                current = current.next
+
+    # 4. Видалення елемента за індексом
+    def del_index(self, inde):
+        current = self.head
+        count = 0
+        while current:
+            if count == inde:
+                if count == 0:
+                    self.head = current.next
+                else:
+                    current.prev.next = current.next
+            if current:
+                current = current.next
+                count += 1
+
+    # 5. Прохід по всьому списку від голови до хвоста
+    def head_tail(self):
+        current = self.head
+        while current:
+            current = current.next
+
+    # 6. Реверс списку
+    def tail_head(self):
+        stack = []
+        current = self.head
+        while current is not None:
+            stack.append(current.data)
+            current = current.next
+        current = self.head
+        while current:
+            current.data = stack.pop()
+            current = current.next
+
+    # 7. Повне очищення списку
+    def del_all(self):
+        current = self.head
+        while current:
+            current.prev = None
+            current = current.next
+        self.head = None
+        self.tail = None
+        print("Список порожній")
 
 
     def iter(self):
@@ -60,25 +129,63 @@ class UserMenu:
 
 
 menu = UserMenu()
-menu.app_begin(5)
-menu.app_begin(6)
-menu.app_begin(7)
-menu.app_begin(9)
-menu.app_begin(6)
-menu.app_begin(7)
-menu.iter()
-print()
 
-menu.app_end(7)
-menu.app_end(9)
-menu.app_end(6)
-menu.app_end(7)
-menu.iter()
-print()
+while True:
 
-menu.del_head()
-menu.iter()
-print()
+    print("1. Додавання елементів до списку в голову")
+    print("2. Додавання елементів до списку в хвіст")
+    print("3. Видалення елемента зі списку з голови")
+    print("4. Видалення елемента зі списку з хвоста")
+    print("5. Видалення елемента за значенням і кількістю")
+    print("6. Видалення елемента за індексом")
+    print("7. Прохід по всьому списку від голови до хвоста")
+    print("8. Прохід по всьому списку від хвоста до голови (реверс)")
+    print("9. Повне очищення списку")
+    print("0. Exit")
 
-menu.del_tail()
-menu.iter()
+    cmd = int(input("Выберите пункт: "))
+
+    if cmd == 1:
+        data = int(input("Введіть число: "))
+        menu.app_begin(data)
+        menu.iter()
+        print()
+    if cmd == 2:
+        data = int(input("Введіть число: "))
+        menu.app_end(data)
+        menu.iter()
+        print()
+    if cmd == 3:
+        menu.del_head()
+        menu.iter()
+        print()
+    if cmd == 4:
+        menu.del_tail()
+        menu.iter()
+        print()
+    if cmd == 5:
+        data = int(input("Введіть число: "))
+        value = int(input("Введіть кількість: "))
+        menu.del_cur(data, value)
+        menu.iter()
+        print()
+    if cmd == 6:
+        inde = int(input("Введіть індекс: "))
+        menu.del_index(inde)
+        menu.iter()
+        print()
+    if cmd == 7:
+        menu.head_tail()
+        menu.iter()
+        print()
+    if cmd == 8:
+        menu.tail_head()
+        menu.iter()
+        print()
+    if cmd == 9:
+        menu.del_all()
+        menu.iter()
+        print()
+    if cmd == 0:
+        break
+    print()
